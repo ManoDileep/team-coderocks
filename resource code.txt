@@ -1,0 +1,321 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define MAX_LABS 5
+#define MAX_ROOMS 10
+#define MAX_BOOKINGS 10
+
+struct Booking {
+    int RoomNumber;
+    int labNumber;
+    char purpose[100];
+    char userName[50];
+};
+struct Room {
+    int roomNumber;
+    bool isAvailable;
+};
+struct Lab {
+    int labNumber;
+    bool isAvailable;
+};
+
+struct Lab labs[MAX_LABS];
+struct Room rooms[MAX_ROOMS];
+struct Booking bookings[MAX_BOOKINGS];
+int totalBookings = 0;
+int totalLabs = 0;
+int totalRooms = 0;
+
+void initializeLabs() {
+    for (int i = 0; i < MAX_LABS; i++) {
+        labs[i].labNumber = i + 1;
+        labs[i].isAvailable = true;
+        totalLabs++;
+    }
+}
+
+void displayAvailableLabs() {
+    printf("Currently Available Labs:\n");
+    for (int i = 0; i < totalLabs; i++) {
+        if (labs[i].isAvailable) {
+            printf("Lab %d\n", labs[i].labNumber);
+        }
+    }
+}
+
+void initializeRooms() {
+    for (int i = 0; i < MAX_ROOMS; i++) {
+        rooms[i].roomNumber = i + 1;
+        rooms[i].isAvailable = true;
+        totalRooms++;
+    }
+}
+
+void displayAvailableRooms() {
+    printf("Currently Available Rooms:\n");
+    for (int i = 0; i < totalRooms; i++) {
+        if (rooms[i].isAvailable) {
+            printf("Room %d\n", rooms[i].roomNumber);
+        }
+    }
+}
+
+void bookLab(int labNumber, const char *purpose, const char *userName) {
+    if (labNumber < 1 || labNumber > totalLabs) {
+        printf("Invalid lab number is given.\n");
+        return;
+    }
+
+    if (!labs[labNumber - 1].isAvailable) {
+        printf("Lab %d is not available.\n", labNumber);
+        return;
+    }
+
+    labs[labNumber - 1].isAvailable = false;
+
+    struct Booking newBooking;
+    newBooking.labNumber = labNumber;
+    strcpy(newBooking.purpose, purpose);
+    strcpy(newBooking.userName, userName);
+    bookings[totalBookings++] = newBooking;
+
+    printf("Lab %d booked for %s by %s.\n", labNumber, purpose, userName);
+}
+
+void bookRoom(int roomNumber, const char *purpose, const char *userName) {
+    if (roomNumber < 1 || roomNumber > totalRooms) {
+        printf("Invalid Room number is given.\n");
+        return;
+    }
+    if (!rooms[roomNumber - 1].isAvailable) {
+        printf("Room %d is not available.\n", roomNumber);
+        return;
+    }
+
+    rooms[roomNumber - 1].isAvailable = false;
+
+    struct Booking newBooking;
+    newBooking.RoomNumber = roomNumber;
+    strcpy(newBooking.purpose, purpose);
+    strcpy(newBooking.userName, userName);
+    bookings[totalBookings++] = newBooking;
+
+    printf("Room %d booked for %s by %s.\n", roomNumber, purpose, userName);
+}
+
+void displayLabBookings() {
+    printf("Lab Bookings:\n");
+    for (int i = 0; i < totalBookings; i++) {
+        if (bookings[i].labNumber > 0) {
+            printf("Lab %d: %s (Booked by %s)\n", bookings[i].labNumber, bookings[i].purpose, bookings[i].userName);
+        }
+    }
+}
+
+void displayRoomBookings() {
+    printf("Room Bookings:\n");
+    for (int i = 0; i < totalBookings; i++) {
+        if (bookings[i].RoomNumber > 0) {
+            printf("Room %d: %s (Booked by %s)\n", bookings[i].RoomNumber, bookings[i].purpose, bookings[i].userName);
+        }
+    }
+}
+
+void addLab() {
+    if (totalLabs < MAX_LABS) {
+        struct Lab newLab;
+        newLab.labNumber = totalLabs + 1;
+        newLab.isAvailable = true;
+        labs[totalLabs++] = newLab;
+        printf("Lab was added successfully.\n");
+    } else {
+        printf("Maximum labs reached.\n");
+    }
+}
+
+void addRoom() {
+    if (totalRooms < MAX_ROOMS) {
+        struct Room newRoom;
+        newRoom.roomNumber = totalRooms + 1;
+        newRoom.isAvailable = true;
+        rooms[totalRooms++] = newRoom;
+        printf("Room was added successfully.\n");
+    } else {
+        printf("Maximum rooms reached.\n");
+    }
+}
+
+void deleteLab(int labNumberToDelete) {
+    if (labNumberToDelete < 1 || labNumberToDelete > totalLabs) {
+        printf("Invalid lab number.\n");
+    } else {
+        if (labs[labNumberToDelete - 1].isAvailable) {
+            printf("Lab %d is already available.\n", labNumberToDelete);
+        } else {
+            labs[labNumberToDelete - 1].isAvailable = true;
+            printf("Lab %d deleted.\n", labNumberToDelete);
+        }
+    }
+}
+
+void deleteRoom(int roomNumberToDelete) {
+    if (roomNumberToDelete < 1 || roomNumberToDelete > totalRooms) {
+        printf("Invalid room number.\n");
+    } else {
+        if (rooms[roomNumberToDelete - 1].isAvailable) {
+            printf("Room %d is already available.\n", roomNumberToDelete);
+        } else {
+            rooms[roomNumberToDelete - 1].isAvailable = true;
+            printf("Room %d deleted.\n", roomNumberToDelete);
+        }
+    }
+}
+
+int main() {
+    int role;
+
+    printf("Resource Booking System\n");
+    initializeLabs();
+    initializeRooms();
+
+    while (1) {
+        printf("Select your role:\n");
+        printf("1. User\n");
+        printf("2. Admin\n");
+        printf("3. Exit\n");
+        scanf("%d", &role);
+
+        if (role == 1) {
+            while (1) {
+                printf("\nUser Menu\n");
+                printf("1. Display Available Labs\n");
+                printf("2. Book a Lab\n");
+                printf("3. Display Your Lab Bookings\n");
+                printf("4. Display Available Rooms\n");
+                printf("5. Book a Room\n");
+                printf("6. Display Your Room Bookings\n");
+                printf("7. Return to Role Selection\n");
+                int choice;
+                scanf("%d", &choice);
+
+                switch (choice) {
+                    case 1:
+                        displayAvailableLabs();
+                        break;
+
+                    case 2: {
+                        int labNumber;
+                        char purpose[100];
+                        char userName[50];
+                        printf("Enter a lab number between 1 to %d\n", totalLabs);
+                        printf("Enter Lab number to be booked: ");
+                        scanf("%d", &labNumber);
+                        printf("Enter your purpose: ");
+                        scanf("%s", purpose);
+                        printf("Enter your name: ");
+                        scanf("%s", userName);
+                        bookLab(labNumber, purpose, userName);
+                        break;
+                    }
+
+                    case 3:
+                        displayLabBookings();
+                        break;
+
+                    case 4:
+                        displayAvailableRooms();
+                        break;
+
+                    case 5: {
+                        int roomNumber;
+                        char purpose[100];
+                        char userName[50];
+                        printf("Enter a Room number between 1 to %d\n", totalRooms);
+                        printf("Enter Room number to be booked: ");
+                        scanf("%d", &roomNumber);
+                        printf("Enter your purpose: ");
+                        scanf("%s", purpose);
+                        printf("Enter your Name: ");
+                        scanf("%s", userName);
+                        bookRoom(roomNumber, purpose, userName);
+                        break;
+                    }
+
+                    case 6:
+                        displayRoomBookings();
+                        break;
+
+                    case 7:
+                        break;
+                    default:
+                        printf("Invalid choice.\n");
+                }
+
+                if (choice == 7) {
+                    break;
+                }
+            }
+        } else if (role == 2) {
+            while (1) {
+                printf("\nAdmin Menu\n");
+                printf("1. Display Available Labs and Rooms\n");
+                printf("2. Add Lab\n");
+                printf("3. Delete booked Lab\n");
+                printf("4. Add Room\n");
+                printf("5. Delete Booked Room\n");
+                printf("6. Return to Role Selection\n");
+                int adminChoice;
+                scanf("%d", &adminChoice);
+
+                switch (adminChoice) {
+                    case 1:
+                        displayAvailableLabs();
+                        displayAvailableRooms();
+                        break;
+
+                    case 2:
+                        addLab();
+                        break;
+
+                    case 3: {
+                        int labNumberToDelete;
+                        printf("Enter Booked lab number to delete: ");
+                        scanf("%d", &labNumberToDelete);
+                        deleteLab(labNumberToDelete);
+                        break;
+                    }
+
+                    case 4:
+                        addRoom();
+                        break;
+
+                    case 5: {
+                        int roomNumberToDelete;
+                        printf("Enter Booked room number to delete: ");
+                        scanf("%d", &roomNumberToDelete);
+                        deleteRoom(roomNumberToDelete);
+                        break;
+                    }
+
+                    case 6:
+                        break;
+                    default:
+                        printf("Invalid choice in Admin Menu.\n");
+                }
+
+                if (adminChoice == 6) {
+                    break;
+                }
+            }
+        } else if (role == 3) {
+            printf("Exiting the Resource Booking System.\n");
+            break;
+        } else {
+            printf("Invalid role selection.\n");
+        }
+    }
+
+    return 0;
+}
